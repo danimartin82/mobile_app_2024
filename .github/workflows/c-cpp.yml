@@ -13,6 +13,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: make --version
+      run: make --version
+    - name: pwd
+      run: pwd
     - name: make
       run: make
+
  
