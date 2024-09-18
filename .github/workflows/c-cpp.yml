@@ -18,8 +18,6 @@ jobs:
           make --version
           pwd
           ls
-    - name: install X11
-      run: sudo apt-get install xorg openbox
     - name: make
       run: make
 
