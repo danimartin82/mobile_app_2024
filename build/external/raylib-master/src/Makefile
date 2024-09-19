@@ -126,6 +126,8 @@ ROOT = $(shell whoami)
 HOST_PLATFORM_OS ?= WINDOWS
 PLATFORM_OS ?= WINDOWS
 
+$(foreach v, $(.VARIABLES), $(info $(v) = $($(v))))
+
 # Determine PLATFORM_OS when required
 ifeq ($(TARGET_PLATFORM),$(filter $(TARGET_PLATFORM),PLATFORM_DESKTOP_GLFW PLATFORM_DESKTOP_SDL PLATFORM_DESKTOP_RGFW PLATFORM_WEB PLATFORM_ANDROID))
     # No uname.exe on MinGW!, but OS=Windows_NT on Windows!
