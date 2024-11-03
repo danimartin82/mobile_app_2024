@@ -177,7 +177,6 @@ endif
 
 # File Rules
 # #############################################
-$(foreach v, $(.VARIABLES), $(info $(v) = $($(v))))
 
 $(OBJDIR)/raudio.o: ../external/raylib-master/src/raudio.c
 	@echo "$(notdir $<)"
