@@ -28,6 +28,36 @@ For a C++ project simply rename the file to .cpp and re-run the build script
 
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 
+
+#define MAX_TARGETS_ON_SCREEN 4
+Vector2 delta1;
+Vector2 delta2;
+Vector2 delta3;
+Vector2 delta4;
+Vector2 deltas[MAX_TARGETS_ON_SCREEN];
+
+
+void recalculate_deltas (void)
+{
+
+    delta1.x = GetRandomValue(-10,10);
+    delta1.y = GetRandomValue(-10,10); 
+    delta2.x = GetRandomValue(-10,10); 
+    delta2.y = GetRandomValue(-10,10); 
+    delta3.x = GetRandomValue(-10,10); 
+    delta3.y = GetRandomValue(-10,10); 
+    delta4.x = GetRandomValue(-10,10); 
+    delta4.y = GetRandomValue(-10,10); 
+
+    deltas[0] = delta1;
+    deltas[1] = delta2;
+    deltas[2] = delta3;
+    deltas[3] = delta4;
+    
+
+}
+
+
 int main(void)
 {
     // Initialization
@@ -42,18 +72,22 @@ int main(void)
     Vector2 pos2 = { (float)screenWidth/2 +200, (float)2*screenHeight/3 };
     Vector2 pos3 = { (float)screenWidth/3-100, (float)screenHeight/2+100 };
     Vector2 pos4 = { (float)screenWidth/2+200, (float)screenHeight/4-50 };
-    Vector2 positions[4] = {pos1,pos2,pos3,pos4};
+    Vector2 positions[MAX_TARGETS_ON_SCREEN] = {pos1,pos2,pos3,pos4};
     int ratio_target = 50;
     int ratio_cursor = 10;
-    bool alive[4]={true, true, true, true};
+    bool alive[MAX_TARGETS_ON_SCREEN]={true, true, true, true};
     Vector2 mousPosition;
     float cursor_speed = 5.0F;
     SetRandomSeed(5);
-    Vector2 delta1 = {GetRandomValue(-10,10),GetRandomValue(-10,10)}; 
-    Vector2 delta2 = {GetRandomValue(-10,10),GetRandomValue(-10,10)}; 
-    Vector2 delta3 = {GetRandomValue(-10,10),GetRandomValue(-10,10)}; 
-    Vector2 delta4 = {GetRandomValue(-10,10),GetRandomValue(-10,10)}; 
-    Vector2 deltas[4] = {delta1, delta2, delta3, delta4};
+    int available_shots = 20;
+    int points = 0;
+    int points_per_target = 10;
+    recalculate_deltas();
+
+    InitAudioDevice();      // Initialize audio device
+
+    Sound fx1 = LoadSound("resources/shoot.wav");
+    Sound fx2 = LoadSound("resources/shoot_hit.wav");
 
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
@@ -65,20 +99,64 @@ int main(void)
         // Update
         //----------------------------------------------------------------------------------
 
-        for (int i = 0; i<4; i++)  
+        for (int i = 0; i < MAX_TARGETS_ON_SCREEN; i++)  
         {
             positions[i].x = positions[i].x + deltas[i].x;
             positions[i].y = positions[i].y + deltas[i].y;
             
-            if((positions[i].x < 0)||(positions[i].x > screenWidth))
+            if((positions[i].x < ratio_target/2)||(positions[i].x > (screenWidth - ratio_target/2)))
             {
                  deltas[i].x *=(-1);
             }
-            if((positions[i].y < 0)||(positions[i].y > screenHeight))
+            if((positions[i].y < ratio_target/2)||(positions[i].y > (screenHeight - ratio_target/2)))
             {
                  deltas[i].y *=(-1);
             }
         }
+
+
+        ballPosition = GetMousePosition();
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            bool hit = false;
+            if(available_shots > 0)
+            {
+                for (int i = 0; i < MAX_TARGETS_ON_SCREEN; i++)
+                {
+                    if(CheckCollisionCircles(positions[i], ratio_target,ballPosition, ratio_cursor))
+                    {
+                        alive[i] = false;
+                        points +=points_per_target;
+                        PlaySound(fx2);
+                        hit = true;
+                    }         
+                }
+                available_shots--;
+                if(hit == false)
+                {
+                    PlaySound(fx1);
+                }
+            }
+
+           
+
+        }
+
+        bool all_finished = true;
+        for (int i = 0; i < MAX_TARGETS_ON_SCREEN; i++)
+        {
+            if(  alive[i] == true)
+            all_finished = false;
+        }
+        if(all_finished == true)
+        {
+            recalculate_deltas();
+            alive[0] = true;
+            alive[1] = true;
+            alive[2] = true;
+            alive[3] = true;
+        }    
+
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -87,20 +165,11 @@ int main(void)
 
         ClearBackground(RAYWHITE);
 
-        //  DrawText("move the ball with arrow keys", 10, 10, 20, DARKGRAY);
-        ballPosition = GetMousePosition();
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        {
-            for (int i =0; i<4; i++)
-            {
-                if(CheckCollisionCircles(positions[i], ratio_target,ballPosition, ratio_cursor))
-                {
-                    alive[i] = false;
-                }         
-            }
+        DrawText(TextFormat("Avalable shots: %02i", available_shots), 10, 10, 40, BLUE);
+        DrawText(TextFormat("Points: %02i", points), 10, 40, 40, BLUE);
 
-        }
-        for (int i = 0; i<4; i++)
+
+        for (int i = 0; i < MAX_TARGETS_ON_SCREEN; i++)
         {
             if(alive[i] == true)
             {
@@ -120,6 +189,12 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
+    UnloadSound(fx1);     // Unload sound data
+    UnloadSound(fx2);     // Unload sound data
+
+    CloseAudioDevice();     // Close audio device
+
+
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
