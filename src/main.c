@@ -37,17 +37,17 @@ Vector2 delta4;
 Vector2 deltas[MAX_TARGETS_ON_SCREEN];
 
 
-void recalculate_deltas (void)
+void recalculate_deltas (int max_speed)
 {
 
-    delta1.x = GetRandomValue(-10,10);
-    delta1.y = GetRandomValue(-10,10); 
-    delta2.x = GetRandomValue(-10,10); 
-    delta2.y = GetRandomValue(-10,10); 
-    delta3.x = GetRandomValue(-10,10); 
-    delta3.y = GetRandomValue(-10,10); 
-    delta4.x = GetRandomValue(-10,10); 
-    delta4.y = GetRandomValue(-10,10); 
+    delta1.x = GetRandomValue((-1)*max_speed, max_speed);
+    delta1.y = GetRandomValue((-1)*max_speed, max_speed);
+    delta2.x = GetRandomValue((-1)*max_speed, max_speed);
+    delta2.y = GetRandomValue((-1)*max_speed, max_speed);
+    delta3.x = GetRandomValue((-1)*max_speed, max_speed); 
+    delta3.y = GetRandomValue((-1)*max_speed, max_speed); 
+    delta4.x = GetRandomValue((-1)*max_speed, max_speed); 
+    delta4.y = GetRandomValue((-1)*max_speed, max_speed);
 
     deltas[0] = delta1;
     deltas[1] = delta2;
@@ -79,15 +79,16 @@ int main(void)
     Vector2 mousPosition;
     float cursor_speed = 5.0F;
     SetRandomSeed(5);
-    int available_shots = 20;
     int points = 0;
     int points_per_target = 10;
-    recalculate_deltas();
+    int max_speed = 1;
+    recalculate_deltas(1);
 
     InitAudioDevice();      // Initialize audio device
 
-    Sound fx1 = LoadSound("resources/shoot.wav");
-    Sound fx2 = LoadSound("resources/shoot_hit.wav");
+    Sound sound_shoot = LoadSound("resources/shoot.wav");
+    Sound sound_shoot_hit = LoadSound("resources/shoot_hit.wav");
+    Sound sound_bounce = LoadSound("resources/bounce.wav");
 
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
@@ -103,44 +104,49 @@ int main(void)
         {
             positions[i].x = positions[i].x + deltas[i].x;
             positions[i].y = positions[i].y + deltas[i].y;
-            
+            bool bounce= false;
             if((positions[i].x < ratio_target/2)||(positions[i].x > (screenWidth - ratio_target/2)))
             {
                  deltas[i].x *=(-1);
+                 bounce = true;
             }
             if((positions[i].y < ratio_target/2)||(positions[i].y > (screenHeight - ratio_target/2)))
             {
                  deltas[i].y *=(-1);
+                 bounce = true;
+            }
+            if(bounce == true)
+            {
+               // PlaySound(sound_bounce);
             }
         }
 
 
         ballPosition = GetMousePosition();
+        
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
+  
             bool hit = false;
-            if(available_shots > 0)
+            for (int i = 0; i < MAX_TARGETS_ON_SCREEN; i++)
             {
-                for (int i = 0; i < MAX_TARGETS_ON_SCREEN; i++)
+                if(CheckCollisionCircles(positions[i], ratio_target,ballPosition, ratio_cursor))
                 {
-                    if(CheckCollisionCircles(positions[i], ratio_target,ballPosition, ratio_cursor))
-                    {
-                        alive[i] = false;
-                        points +=points_per_target;
-                        PlaySound(fx2);
-                        hit = true;
-                    }         
-                }
-                available_shots--;
-                if(hit == false)
-                {
-                    PlaySound(fx1);
-                }
+                    alive[i] = false;
+                    points +=points_per_target;
+                    PlaySound(sound_shoot_hit);
+                    hit = true;
+                }         
             }
+
+            if(hit == false)
+            {
+                PlaySound(sound_shoot);
+            }
+        }
 
            
 
-        }
 
         bool all_finished = true;
         for (int i = 0; i < MAX_TARGETS_ON_SCREEN; i++)
@@ -150,7 +156,8 @@ int main(void)
         }
         if(all_finished == true)
         {
-            recalculate_deltas();
+            max_speed++;
+            recalculate_deltas(max_speed);
             alive[0] = true;
             alive[1] = true;
             alive[2] = true;
@@ -165,7 +172,7 @@ int main(void)
 
         ClearBackground(RAYWHITE);
 
-        DrawText(TextFormat("Avalable shots: %02i", available_shots), 10, 10, 40, BLUE);
+        //DrawText(TextFormat("Avalable shots: %02i", available_shots), 10, 10, 40, BLUE);
         DrawText(TextFormat("Points: %02i", points), 10, 40, 40, BLUE);
 
 
@@ -189,8 +196,9 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadSound(fx1);     // Unload sound data
-    UnloadSound(fx2);     // Unload sound data
+    UnloadSound(sound_shoot);     // Unload sound data
+    UnloadSound(sound_shoot_hit);     // Unload sound data
+    UnloadSound(sound_bounce);     // Unload sound data
 
     CloseAudioDevice();     // Close audio device
 
