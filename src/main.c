@@ -35,11 +35,25 @@ Vector2 delta2;
 Vector2 delta3;
 Vector2 delta4;
 Vector2 deltas[MAX_TARGETS_ON_SCREEN];
+Vector2 pos1, pos2, pos3, pos4;
+Vector2 positions[MAX_TARGETS_ON_SCREEN];
 
-
-void recalculate_deltas (int max_speed)
+void recalculate_deltas (int max_speed, int screenWidth, int screenHeight)
 {
 
+    pos1.x = (float)screenWidth/4;
+    pos1.y = (float)screenHeight/4;
+    pos2.x = (float)screenWidth/2 +200;
+    pos2.y = (float)2*screenHeight/3;
+    pos3.x = (float)screenWidth/3-100;
+    pos3.y = (float)screenHeight/2+100;
+    pos4.x = (float)screenWidth/2+200;
+    pos4.y = (float)screenHeight/4-50;
+    positions[0] = pos1;
+    positions[1] = pos2;
+    positions[2] = pos3;
+    positions[3] = pos4;
+    
     delta1.x = GetRandomValue((-1)*max_speed, max_speed);
     delta1.y = GetRandomValue((-1)*max_speed, max_speed);
     delta2.x = GetRandomValue((-1)*max_speed, max_speed);
@@ -68,11 +82,9 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "HOLA raylib [core] example - keyboard input");
 
     Vector2 ballPosition = { (float)screenWidth/2, (float)screenHeight/2 };
-    Vector2 pos1 = { (float)screenWidth/4, (float)screenHeight/4 };
-    Vector2 pos2 = { (float)screenWidth/2 +200, (float)2*screenHeight/3 };
-    Vector2 pos3 = { (float)screenWidth/3-100, (float)screenHeight/2+100 };
-    Vector2 pos4 = { (float)screenWidth/2+200, (float)screenHeight/4-50 };
-    Vector2 positions[MAX_TARGETS_ON_SCREEN] = {pos1,pos2,pos3,pos4};
+
+
+
     int ratio_target = 50;
     int ratio_cursor = 10;
     bool alive[MAX_TARGETS_ON_SCREEN]={true, true, true, true};
@@ -82,14 +94,15 @@ int main(void)
     int points = 0;
     int points_per_target = 10;
     int max_speed = 1;
-    recalculate_deltas(1);
+    recalculate_deltas(1, screenWidth, screenHeight);
 
     InitAudioDevice();      // Initialize audio device
 
     Sound sound_shoot = LoadSound("resources/shoot.wav");
     Sound sound_shoot_hit = LoadSound("resources/shoot_hit.wav");
     Sound sound_bounce = LoadSound("resources/bounce.wav");
-
+    SetSoundVolume(sound_bounce, 0.3F);
+    SetSoundVolume(sound_shoot_hit, 0.5F);
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -99,7 +112,7 @@ int main(void)
     {
         // Update
         //----------------------------------------------------------------------------------
-
+        
         for (int i = 0; i < MAX_TARGETS_ON_SCREEN; i++)  
         {
             positions[i].x = positions[i].x + deltas[i].x;
@@ -117,13 +130,13 @@ int main(void)
             }
             if(bounce == true)
             {
-               // PlaySound(sound_bounce);
+               PlaySound(sound_bounce);
             }
         }
 
 
         ballPosition = GetMousePosition();
-        
+
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
   
@@ -157,7 +170,7 @@ int main(void)
         if(all_finished == true)
         {
             max_speed++;
-            recalculate_deltas(max_speed);
+            recalculate_deltas(max_speed, screenWidth, screenHeight);
             alive[0] = true;
             alive[1] = true;
             alive[2] = true;
