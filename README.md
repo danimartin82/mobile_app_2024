@@ -1,99 +1,99 @@
-# Raylib-Quickstart
-A simple cross platform template for raylib.
+-----------------------------------
 
-## Supported Platforms
-Quickstart supports the main 3 desktop platforms
-* Windows
-* Linux
-* MacOS
+_DISCLAIMER:_
 
-# VSCode Users (all platforms)
-* Download the quickstart
-* Rename the folder to your game name
-* Open the folder in VSCode.
-* Press F5 to build
-* You are good to go.
+Welcome to **raylib game template**!
 
-# Windows Users
-There are two compiler toolchains avialble for windows, MinGW-W64 (a free compiler using GCC), and Microsoft Visual Studio
-## Using MinGW-W64
-* Double click the build-MinGW-W64.bat file.
-* cd into the folder in your terminal
-* run make
-* You are good to go
+This template provides a base structure to start developing a small raylib game in plain C. The repo is also pre-configured with a default `LICENSE` (zlib/libpng) and a `README.md` (this one) to be properly filled by users. Feel free to change the LICENSE as required.
 
-### Note on MinGW-64 versions
-Make sure you have a modern version of MinGW-W64 (not mingw).
-The best place to get it is from the W64devkit from
-https://github.com/skeeto/w64devkit/releases
-or the version installed with the raylib installer
-#### If you have installed rayib from the installer
-Make sure you have added the path
+All the sections defined by `$(Data to Fill)` are expected to be edited and filled properly. It's recommended to delete this disclaimer message after editing this `README.md` file.
 
- C:\raylib\w64devkit\bin 
+This template has been created to be used with raylib (www.raylib.com) and it's licensed under an unmodified zlib/libpng license.
 
-To your path environment varialbe so that the compiler that came with raylib can be found..
+_Copyright (c) 2014-2024 Ramon Santamaria ([@raysan5](https://twitter.com/raysan5))_
 
-DO NOT INSALL ANOTHER MinGW-W64 from another source such as msys2, you don't need it.
+-----------------------------------
+## Getting Started with this template
 
-## Microsoft Visual Studio
-* Run the build-VisualStudio2022.bat
-* double click the .sln file that is geneated.
-* develop your game
-* you are good to go.
+You can use this templates in some ways. Using Visual Studio, using CMake or make your own build setup. This repository come with Visual Studio and CMake already setuped.
 
-# Linux Users
-* CD into the build folder
-* run ./premake5 gmake2
-* CD back to the root
-* run make
-* you are good to go
+Chose one of the follow setup, that fit in you development enviroment.
 
-# MacOS Users
-* CD into the build folder
-* run ./premake5.osx gmake2
-* CD back to the root
-* run make
-* you are good to go
+### Visual Studio
 
-# Output files
-The built code will be in the bin dir
+- After extracting the zip, the parent folder `raylib-game-template` should exist in the same directory as `raylib` itself.  So your file structure should look like this:
+    - Some parent directory
+        - `raylib`
+            - the contents of https://github.com/raysan5/raylib
+        - `raylib-game-template`
+            - this `README.md` and all other raylib-game-template files
+- If using Visual Studio, open projects/VS2022/raylib-game-template.sln
+- Select on `raylib_game` in the solution explorer, then in the toolbar at the top, click `Project` > `Set as Startup Project`
+- Now you're all set up!  Click `Local Windows Debugger` with the green play arrow and the project will run.
 
-# Working directories and the resources folder
-The example uses a utility function from path_utils.h that will find the resources dir and set it as the current working directory. This is very useful when starting out. If you wish to manage your own working directory you can simply remove the call to the function and the header.
+### CMake
 
-# Building for other OpenGL targets
-If you need to build for a different OpenGL version than the default (OpenGL 3.3) you can specify an openGL version in your premake command line. Just modify the bat file or add the following to your command line
+- Extract the zip of this project
+- Type the follow command:
 
-## For OpenGL 1.1
---graphics=opengl11
+```sh
+cmake -S . -B build
+```
 
-## For OpenGL 2.1
---graphics=opengl21
+> if you want with debug symbols put the flag `-DCMAKE_BUILD_TYPE=Debug`
 
-## For OpenGL 4.3
---graphics=opengl43
+- After CMake config your project build:
 
-## For OpenGLES 2.0
---graphics=opengles2
+```sh
+cmake --build build
+```
 
-## For OpenGLES 3.0
---graphics=opengles3
+- Inside the build folder are another folder (named the same as the project name on CMakeLists.txt) with the executable and resources folder.
+- In order for resources to load properly, cd to `src` and run the executable (`../build/${PROJECT_NAME}/${PROJECT_NAME}`) from there.
 
-# License
-Copyright (c) 2020-2024 Jeffery Myers
+- cmake will automatically download a current release of raylib but if you want to use your local version you can pass `-DFETCHCONTENT_SOURCE_DIR_RAYLIB=<dir_with_raylib>` 
 
-This software is provided "as-is", without any express or implied warranty. In no event 
-will the authors be held liable for any damages arising from the use of this software.
+## $(Game Title)
 
-Permission is granted to anyone to use this software for any purpose, including commercial 
-applications, and to alter it and redistribute it freely, subject to the following restrictions:
+![$(Game Title)](screenshots/screenshot000.png "$(Game Title)")
 
-  1. The origin of this software must not be misrepresented; you must not claim that you 
-  wrote the original software. If you use this software in a product, an acknowledgment 
-  in the product documentation would be appreciated but is not required.
+### Description
 
-  2. Altered source versions must be plainly marked as such, and must not be misrepresented
-  as being the original software.
+$(Your Game Description)
 
-  3. This notice may not be removed or altered from any source distribution.
+### Features
+
+ - $(Game Feature 01)
+ - $(Game Feature 02)
+ - $(Game Feature 03)
+
+### Controls
+
+Keyboard:
+ - $(Game Control 01)
+ - $(Game Control 02)
+ - $(Game Control 03)
+
+### Screenshots
+
+_TODO: Show your game to the world, animated GIFs recommended!._
+
+### Developers
+
+ - $(Developer 01) - $(Role/Tasks Developed)
+ - $(Developer 02) - $(Role/Tasks Developed)
+ - $(Developer 03) - $(Role/Tasks Developed)
+
+### Links
+
+ - YouTube Gameplay: $(YouTube Link)
+ - itch.io Release: $(itch.io Game Page)
+ - Steam Release: $(Steam Game Page)
+
+### License
+
+This game sources are licensed under an unmodified zlib/libpng license, which is an OSI-certified, BSD-like license that allows static linking with closed source software. Check [LICENSE](LICENSE) for further details.
+
+$(Additional Licenses)
+
+*Copyright (c) $(Year) $(User Name) ($(User Twitter/GitHub Name))*
