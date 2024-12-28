@@ -64,7 +64,10 @@ void DrawEndingScreen(void)
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), BLUE);
 
     Vector2 pos = { 20, 10 };
-    DrawTextEx(font, "ENDING SCREEN", pos, font.baseSize*3.0f, 4, DARKBLUE);
+    DrawTextEx(font, "GAME OVER", pos, font.baseSize*3.0f, 4, DARKBLUE);
+    pos.y +=100;
+    DrawTextEx(font, TextFormat("Total points: %d", getTotalPoints()), pos, font.baseSize*2.0f, 4, DARKBLUE);
+    
     DrawText("PRESS ENTER or TAP to RETURN to TITLE SCREEN", 120, 220, 20, DARKBLUE);
 }
 

@@ -5,7 +5,7 @@
         "name": "DAJE build and debug active file",
         "type": "cppdbg",
         "request": "launch",
-        "program": "${workspaceFolder}/src/raylib_game.exe",
+        "program": "${workspaceFolder}/bin/raylib_game.exe",
         "args": [],
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}/src",

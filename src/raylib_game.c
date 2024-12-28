@@ -40,7 +40,9 @@ static bool onTransition = false;
 static bool transFadeOut = false;
 static int transFromScreen = -1;
 static GameScreen transToScreen = UNKNOWN;
+int total_points = 0;
 
+int level = 1;
 //----------------------------------------------------------------------------------
 // Local Functions Declaration
 //----------------------------------------------------------------------------------
@@ -137,7 +139,7 @@ static void ChangeToScreen(int screen)
         case LOGO: InitLogoScreen(); break;
         case TITLE: InitTitleScreen(); break;
         case OPTIONS: InitOptionsScreen(); break;
-        case GAMEPLAY: InitGameplayScreen(screenWidth, screenHeight); break;
+        case GAMEPLAY: InitGameplayScreen(); break;
         case ENDING: InitEndingScreen(); break;
         default: break;
     }
@@ -185,7 +187,7 @@ static void UpdateTransition(void)
                 case LOGO: InitLogoScreen(); break;
                 case TITLE: InitTitleScreen(); break;
                 case OPTIONS: InitOptionsScreen(); break;
-                case GAMEPLAY: InitGameplayScreen(screenWidth, screenHeight); break;
+                case GAMEPLAY: InitGameplayScreen(); break;
                 case ENDING: InitEndingScreen(); break;
                 default: break;
             }
@@ -254,15 +256,33 @@ static void UpdateDrawFrame(void)
             {
                 UpdateGameplayScreen();
 
-                if (FinishGameplayScreen() == 1) TransitionToScreen(ENDING);
-                //else if (FinishGameplayScreen() == 2) TransitionToScreen(TITLE);
+                if (FinishGameplayScreen() == GAME_END_FAIL)
+                {
+                    TransitionToScreen(ENDING);
+                }   
+                if (FinishGameplayScreen() == GAME_END_WIN)
+                {
+                    if (level < 7)
+                    {
+                        level++;
+                    }
+
+                    total_points += getLastPoints();
+                    TransitionToScreen(TITLE);
+                }
 
             } break;
             case ENDING:
             {
                 UpdateEndingScreen();
 
-                if (FinishEndingScreen() == 1) TransitionToScreen(TITLE);
+                if (FinishEndingScreen() == 1)
+                {
+                    TransitionToScreen(TITLE);
+                    level = 0;
+                    total_points = 0;
+                }
+               
 
             } break;
             default: break;
@@ -294,4 +314,15 @@ static void UpdateDrawFrame(void)
 
     EndDrawing();
     //----------------------------------------------------------------------------------
+}
+
+
+int getTotalPoints(void)
+{
+    return total_points;
+}
+
+int getLevel(void)
+{
+    return level;
 }
