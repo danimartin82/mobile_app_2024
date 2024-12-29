@@ -87,14 +87,14 @@ void UpdateLogoScreen(void)
         topSideRecWidth += 8;
         leftSideRecHeight += 8;
 
-        if (topSideRecWidth == 256) state = 2;
+        if (topSideRecWidth == 512) state = 2;
     }
     else if (state == 2)            // State 2: Bars animation logic: bottom and right
     {
         bottomSideRecWidth += 8;
         rightSideRecHeight += 8;
 
-        if (bottomSideRecWidth == 256) state = 3;
+        if (bottomSideRecWidth == 512) state = 3;
     }
     else if (state == 3)            // State 3: "raylib" text-write animation logic
     {
@@ -144,7 +144,7 @@ void DrawLogoScreen(void)
         DrawRectangle(logoPositionX + 240, logoPositionY, 16, rightSideRecHeight, BLACK);
         DrawRectangle(logoPositionX, logoPositionY + 240, bottomSideRecWidth, 16, BLACK);
     }
-    else if (state == 3)    // Draw "raylib" text-write animation + "powered by"
+    else if (state == 3)    // Draw "BALL SHOOT" text-write animation + "2025"
     {
         DrawRectangle(logoPositionX, logoPositionY, topSideRecWidth, 16, Fade(BLACK, alpha));
         DrawRectangle(logoPositionX, logoPositionY + 16, 16, leftSideRecHeight - 32, Fade(BLACK, alpha));
@@ -154,9 +154,9 @@ void DrawLogoScreen(void)
 
         DrawRectangle(GetScreenWidth()/2 - 112, GetScreenHeight()/2 - 112, 224, 224, Fade(RAYWHITE, alpha));
 
-        DrawText(TextSubtext("raylib", 0, lettersCount), GetScreenWidth()/2 - 44, GetScreenHeight()/2 + 48, 50, Fade(BLACK, alpha));
+        DrawText(TextSubtext("BALL SHOOT", 0, lettersCount), GetScreenWidth()/2 - 44, GetScreenHeight()/2 + 48, 50, Fade(BLACK, alpha));
 
-        if (framesCounter > 20) DrawText("powered by", logoPositionX, logoPositionY - 27, 20, Fade(DARKGRAY, alpha));
+        if (framesCounter > 20) DrawText("2025", logoPositionX, logoPositionY - 27, 20, Fade(DARKGRAY, alpha));
     }
 }
 

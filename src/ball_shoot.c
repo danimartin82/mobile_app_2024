@@ -27,12 +27,15 @@ GameScreen currentScreen = TITLE;
 Font font = { 0 };
 Music music = { 0 };
 Sound fxCoin = { 0 };
+Sound balloonPop = { 0 };
+Sound gameOver = { 0 };
+Sound bonus;
 
 //----------------------------------------------------------------------------------
 // Local Variables Definition (local to this module)
 //----------------------------------------------------------------------------------
-static const int screenWidth = 800;
-static const int screenHeight = 450;
+static int screenWidth = 800;
+static int screenHeight = 450;
 
 // Required variables to manage screen transitions (fade-in, fade-out)
 static float transAlpha = 0.0f;
@@ -59,16 +62,24 @@ static void UpdateDrawFrame(void);          // Update and draw one frame
 //----------------------------------------------------------------------------------
 int main(void)
 {
+    int display = GetCurrentMonitor();
+    screenWidth = GetMonitorWidth(display);
+    screenHeight = GetMonitorHeight(display);
+
+
     // Initialization
     //---------------------------------------------------------
-    InitWindow(screenWidth, screenHeight, "BALL SHOOT 2024");
+    InitWindow(screenWidth, screenHeight, "BALL SHOOT");
 
     InitAudioDevice();      // Initialize audio device
 
     // Load global data (assets that must be available in all screens, i.e. font)
-    font = LoadFont("resources/mecha.png");
+    font = LoadFont("../resources/mecha.png");
     //music = LoadMusicStream("resources/ambient.ogg"); // TODO: Load music
-    fxCoin = LoadSound("resources/coin.wav");
+    fxCoin = LoadSound("../resources/coin.wav");
+    balloonPop = LoadSound("../resources/balloon-pop.mp3");
+    gameOver = LoadSound("../resources/game-over.mp3");
+    bonus = LoadSound("../resources/bonus.mp3");
 
     SetMusicVolume(music, 1.0f);
     PlayMusicStream(music);
@@ -107,6 +118,9 @@ int main(void)
     UnloadFont(font);
     UnloadMusicStream(music);
     UnloadSound(fxCoin);
+    UnloadSound(balloonPop);
+    UnloadSound(gameOver);
+    UnloadSound(bonus);
 
     CloseAudioDevice();     // Close audio context
 
@@ -262,10 +276,8 @@ static void UpdateDrawFrame(void)
                 }   
                 if (FinishGameplayScreen() == GAME_END_WIN)
                 {
-                    if (level < 7)
-                    {
-                        level++;
-                    }
+
+                    level++;
 
                     total_points += getLastPoints();
                     TransitionToScreen(TITLE);

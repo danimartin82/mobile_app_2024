@@ -29,11 +29,11 @@
 PLATFORM              ?= PLATFORM_DESKTOP
 
 # Define project variables
-PROJECT_NAME          ?= raylib_game
+PROJECT_NAME          ?= ball_shoot
 PROJECT_VERSION       ?= 1.0
 PROJECT_BUILD_PATH    ?= ../bin/
 PROJECT_SOURCE_FILES  ?= \
-    raylib_game.c \
+    ball_shoot.c \
     screen_logo.c \
     screen_title.c \
     screen_options.c \

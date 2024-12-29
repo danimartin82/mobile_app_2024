@@ -29,17 +29,21 @@
 //----------------------------------------------------------------------------------
 // Module Variables Definition (local)
 //----------------------------------------------------------------------------------
+enum{
+    CURSOR_NORMAL_SIZE = 10,
+    CURSOR_BIG_SIZE = 50,
+};
 
 GameEnd finishScreen = 0;
 #define MAX_TARGETS_ON_SCREEN 10
 Vector2 deltas[MAX_TARGETS_ON_SCREEN];
 Vector2 positions[MAX_TARGETS_ON_SCREEN];
-int ratio_cursor = 10;
+int radioCursor = CURSOR_NORMAL_SIZE;
 float cursor_speed = 5.0F;
 bool alive[MAX_TARGETS_ON_SCREEN]={false};
 Vector2 mousPosition;
 
-Vector2 ballPosition;
+Vector2 cursorPosition;
 
 int points = 0;
 bool user_failed = false;
@@ -48,6 +52,14 @@ int points_per_target = 0;
 int radio_target = 0;
 int required_points = 0;
 int balls_per_game = 0;
+
+bool bonusAlive = false;
+double bonusMaxTime = 5.0;
+double bonusStartTime;    
+
+Vector2 bonusPosition;
+Vector2 deltaBonus;
+int radioBonus = 30;
 
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
@@ -69,6 +81,10 @@ void recalculate_deltas(int max_speed)
         positions[i] = position;
     }
 
+    deltaBonus.x =  GetRandomValue((-1)*max_speed, max_speed);
+    deltaBonus.y = GetRandomValue((-1)*max_speed, max_speed);
+    bonusPosition.x = GetRandomValue(0, GetScreenWidth());
+    bonusPosition.y = GetRandomValue(0, GetScreenHeight()); 
 }
 // Gameplay Screen Initialization logic
 void InitGameplayScreen(void)
@@ -76,11 +92,16 @@ void InitGameplayScreen(void)
     finishScreen = 0;
     user_failed = false;
     points = 0;
+    radioCursor = CURSOR_NORMAL_SIZE;
 
-    ballPosition.x = (float)GetScreenWidth()/2;
-    ballPosition.y = (float)GetScreenHeight()/2;
+    cursorPosition.x = (float)GetScreenWidth()/2;
+    cursorPosition.y = (float)GetScreenHeight()/2;
 
-    switch (getLevel())
+    SetSoundVolume(fxCoin, 0.3);
+    SetSoundVolume(balloonPop, 0.1);
+    SetSoundPitch(balloonPop, (getLevel()%7)/4);   
+
+    switch (getLevel()%7)
     {
         default:
         case 1:
@@ -97,6 +118,7 @@ void InitGameplayScreen(void)
             radio_target = 40;
             required_points = 80;
             balls_per_game = 5;
+            bonusAlive = true;
         }
         break;
         case 3:
@@ -121,6 +143,7 @@ void InitGameplayScreen(void)
             radio_target = 25;
             required_points = 140;
             balls_per_game = 8;
+            bonusAlive = true;
         }
         break;
         case 6:
@@ -147,74 +170,104 @@ void InitGameplayScreen(void)
 // Gameplay Screen Update logic
 void UpdateGameplayScreen(void)
 {
-     for (int i = 0; i < balls_per_game; i++)  
+    if (radioCursor == CURSOR_BIG_SIZE)
+    {  
+        if(GetTime() >= (bonusMaxTime + bonusStartTime))
         {
-            positions[i].x += deltas[i].x;
-            positions[i].y +=  deltas[i].y;
-            bool bounce = false;
-            if((positions[i].x < radio_target/2)||(positions[i].x > (GetScreenWidth() - radio_target/2)))
-            {
-                 deltas[i].x *=(-1);
-                 bounce = true;
-            }
-            if((positions[i].y < radio_target/2)||(positions[i].y > (GetScreenHeight() - radio_target/2)))
-            {
-                 deltas[i].y *=(-1);
-                 bounce = true;
-            }
-            if(bounce == true)
-            {
-            }
+            radioCursor = CURSOR_NORMAL_SIZE;
+        }
+    }
+    for (int i = 0; i < balls_per_game; i++)  
+    {
+        positions[i].x += deltas[i].x;
+        positions[i].y +=  deltas[i].y;
+        bool bounce = false;
+        if((positions[i].x < radio_target/2)||(positions[i].x > (GetScreenWidth() - radio_target/2)))
+        {
+            deltas[i].x *=(-1);
+            bounce = true;
+        }
+        if((positions[i].y < radio_target/2)||(positions[i].y > (GetScreenHeight() - radio_target/2)))
+        {
+            deltas[i].y *=(-1);
+            bounce = true;
+        }
+        if(bounce == true)
+        {
+        }
+    }
+
+    if (bonusAlive == true)
+    {
+        bonusPosition.x +=  deltaBonus.x;
+        bonusPosition.y +=  deltaBonus.y;
+        if((bonusPosition.x < radioBonus/2)||(bonusPosition.x > (GetScreenWidth() - radioBonus/2)))
+        {
+            deltaBonus.x *=(-1);
+        }
+        if((bonusPosition.y < radioBonus/2)||(bonusPosition.y > (GetScreenHeight() - radioBonus/2)))
+        {
+            deltaBonus.y *=(-1);
         }
 
+    }
+    cursorPosition = GetMousePosition();
 
-        ballPosition = GetMousePosition();
-
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        {
-  
-            bool hit = false;
-            for (int i = 0; i < balls_per_game; i++)
-            {
-                if(CheckCollisionCircles(positions[i], radio_target, ballPosition, ratio_cursor))
-                {
-                    alive[i] = false;
-                    points += points_per_target;
-                    hit = true;
-                }         
-            }
-
-            if(hit == false)
-            {
-                user_failed = true;
-            }
-        }
-
-           
-
-
-        bool all_finished = true;
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+    {
+        bool hit = false;
         for (int i = 0; i < balls_per_game; i++)
         {
-            if( alive[i] == true)
-            all_finished = false;
-        }
-        if(all_finished == true)
-        {
-            max_speed++;
-            recalculate_deltas(max_speed);
-
-            for (int i = 0; i < balls_per_game; i++)
+            if(CheckCollisionCircles(positions[i], radio_target, cursorPosition, radioCursor))
             {
-                alive[i] = true;
-            }    
-        } 
+                alive[i] = false;
+                points += points_per_target;
+                hit = true;
+                PlaySound(balloonPop);
+            }
+
+        }
+        if(hit == false)
+        {
+            user_failed = true;
+        }
+        if (bonusAlive == true)
+        {
+            if(CheckCollisionCircles(cursorPosition, radioCursor, bonusPosition, radioBonus))
+            {
+                radioCursor = CURSOR_BIG_SIZE;
+                bonusAlive = false;
+                PlaySound(bonus);
+                bonusStartTime = GetTime();
+                user_failed = false;
+            }
+        }
+
+
+    }
+
+           
+    bool all_finished = true;
+    for (int i = 0; i < balls_per_game; i++)
+    {
+        if( alive[i] == true)
+        all_finished = false;
+    }
+    if(all_finished == true)
+    {
+        max_speed++;
+        recalculate_deltas(max_speed);
+        for (int i = 0; i < balls_per_game; i++)
+        {
+            alive[i] = true;
+        }    
+    } 
 
     // Press enter or tap to change to ENDING screen
     if (IsKeyPressed(KEY_Q) ||  user_failed == true)// || IsGestureDetected(GESTURE_TAP))
     {
         finishScreen = GAME_END_FAIL;
-        PlaySound(fxCoin);
+        PlaySound(gameOver);
     }
     if (points >= required_points)
     {
@@ -227,23 +280,24 @@ void UpdateGameplayScreen(void)
 void DrawGameplayScreen(void)
 {
 
-        //DrawText(TextFormat("Avalable shots: %02i", available_shots), 10, 10, 40, BLUE);
-        DrawText(TextFormat("Points: %02i", points), 10, 40, 40, BLUE);
+    DrawText(TextFormat("Points: %02i", points), 10, 40, 40, BLUE);
 
 
-        for (int i = 0; i < balls_per_game; i++)
+    for (int i = 0; i < balls_per_game; i++)
+    {
+        if(alive[i] == true)
         {
-            if(alive[i] == true)
-            {
-                DrawCircleV(positions[i], radio_target, DARKGRAY);
-            }
-
+            DrawCircleV(positions[i], radio_target, DARKGRAY);
         }
 
+    }
 
+    if (bonusAlive == true)
+    {
+        DrawCircleV(bonusPosition, radioBonus, GOLD);
+    }
 
-
-    DrawCircleV(ballPosition, ratio_cursor, MAROON);
+    DrawCircleV(cursorPosition, radioCursor, MAROON);
 }
 
 // Gameplay Screen Unload logic
