@@ -63,12 +63,12 @@ void DrawEndingScreen(void)
     // TODO: Draw ENDING screen here!
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), BLUE);
 
-    Vector2 pos = { 20, 10 };
+    Vector2 pos = { 50, 100 };
     DrawTextEx(font, "GAME OVER", pos, font.baseSize*3.0f, 4, DARKBLUE);
     pos.y +=100;
     DrawTextEx(font, TextFormat("Total points: %d", getTotalPoints()), pos, font.baseSize*2.0f, 4, DARKBLUE);
     
-    DrawText("PRESS ENTER or TAP to RETURN to TITLE SCREEN", 120, 220, 20, DARKBLUE);
+    DrawText("PRESS ENTER to retry", 120, 320, 20, DARKBLUE);
 }
 
 // Ending Screen Unload logic

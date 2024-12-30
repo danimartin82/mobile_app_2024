@@ -30,6 +30,9 @@ Sound fxCoin = { 0 };
 Sound balloonPop = { 0 };
 Sound gameOver = { 0 };
 Sound bonus;
+Texture2D redBall;
+Texture2D bonusTx;
+Image CoinSprite;
 
 //----------------------------------------------------------------------------------
 // Local Variables Definition (local to this module)
@@ -80,6 +83,9 @@ int main(void)
     balloonPop = LoadSound("../resources/balloon-pop.mp3");
     gameOver = LoadSound("../resources/game-over.mp3");
     bonus = LoadSound("../resources/bonus.mp3");
+    redBall = LoadTexture("../resources/redball.png");
+    bonusTx = LoadTexture("../resources/bonus.png");
+    CoinSprite = LoadImage("../resources/MonedaD.png");
 
     SetMusicVolume(music, 1.0f);
     PlayMusicStream(music);
@@ -121,6 +127,9 @@ int main(void)
     UnloadSound(balloonPop);
     UnloadSound(gameOver);
     UnloadSound(bonus);
+    UnloadTexture(redBall);
+    UnloadTexture(bonusTx);
+    UnloadImage(CoinSprite);
 
     CloseAudioDevice();     // Close audio context
 

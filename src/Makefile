@@ -376,7 +376,7 @@ $(PROJECT_NAME): $(OBJS)
 .PHONY: clean_shell_cmd clean_shell_sh
 
 # Clean everything
-clean:	clean_shell_$(PLATFORM_SHELL)
+clean:	clean_shell_cmd
 	@echo Cleaning done
 
 clean_shell_sh:

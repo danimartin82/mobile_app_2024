@@ -59,8 +59,15 @@ double bonusStartTime;
 
 Vector2 bonusPosition;
 Vector2 deltaBonus;
-int radioBonus = 30;
+int radioBonus = 20;
+Texture2D CoinSpriteTx;
 
+int currentFrame = 0;
+int framesCounter = 0;
+int framesSpeed = 8;
+Rectangle frameRec;
+
+ 
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
 //----------------------------------------------------------------------------------
@@ -93,6 +100,15 @@ void InitGameplayScreen(void)
     user_failed = false;
     points = 0;
     radioCursor = CURSOR_NORMAL_SIZE;
+
+    float scale = ((float)radioBonus*2)/(((float)CoinSprite.width)/5);
+    ImageResize(&CoinSprite, (CoinSprite.width*scale), (CoinSprite.height*scale)); 
+    CoinSpriteTx = LoadTextureFromImage(CoinSprite); 
+
+    frameRec.x= 0.0f;
+    frameRec.y= 0.0f;
+    frameRec.width = (float)CoinSpriteTx.width/5;
+    frameRec.height = (float)CoinSpriteTx.height;
 
     cursorPosition.x = (float)GetScreenWidth()/2;
     cursorPosition.y = (float)GetScreenHeight()/2;
@@ -170,6 +186,20 @@ void InitGameplayScreen(void)
 // Gameplay Screen Update logic
 void UpdateGameplayScreen(void)
 {
+    framesCounter++;
+
+    if (framesCounter >= (60/framesSpeed))
+    {
+        framesCounter = 0;
+        currentFrame++;
+
+        if (currentFrame > 5) currentFrame = 0;
+
+        frameRec.x = (float)currentFrame*(float)CoinSprite.width/5;
+    }
+
+
+
     if (radioCursor == CURSOR_BIG_SIZE)
     {  
         if(GetTime() >= (bonusMaxTime + bonusStartTime))
@@ -287,14 +317,24 @@ void DrawGameplayScreen(void)
     {
         if(alive[i] == true)
         {
-            DrawCircleV(positions[i], radio_target, DARKGRAY);
+          
+          // DrawCircleV(positions[i], radio_target, DARKGRAY);
+            float scale = ((float)radio_target * 2)/((float)redBall.width);
+            Vector2 position ={positions[i].x - (redBall.width*scale)/2, positions[i].y - (redBall.height*scale)/2};
+            DrawTextureEx(redBall, position, 0.0, scale , WHITE);
         }
 
     }
 
     if (bonusAlive == true)
     {
-        DrawCircleV(bonusPosition, radioBonus, GOLD);
+       // DrawCircleV(bonusPosition, radioBonus, GOLD);
+        //float scale = ((float)radioBonus * 2)/((float)bonusTx.width);
+        //Vector2 position ={bonusPosition.x - (bonusTx.width*scale)/2, bonusPosition.y - (bonusTx.height*scale)/2};
+        //DrawTextureEx(bonusTx, position, 0.0, scale , WHITE);
+        Vector2 position ={bonusPosition.x - (frameRec.width)/2, bonusPosition.y - (frameRec.height)/2};
+        DrawTextureRec(CoinSpriteTx, frameRec, position, WHITE);
+        
     }
 
     DrawCircleV(cursorPosition, radioCursor, MAROON);
