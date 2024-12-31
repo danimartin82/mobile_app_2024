@@ -212,12 +212,12 @@ void UpdateGameplayScreen(void)
         positions[i].x += deltas[i].x;
         positions[i].y +=  deltas[i].y;
         bool bounce = false;
-        if((positions[i].x < radio_target/2)||(positions[i].x > (GetScreenWidth() - radio_target/2)))
+        if((positions[i].x < radio_target)||(positions[i].x > (GetScreenWidth() - radio_target)))
         {
             deltas[i].x *=(-1);
             bounce = true;
         }
-        if((positions[i].y < radio_target/2)||(positions[i].y > (GetScreenHeight() - radio_target/2)))
+        if((positions[i].y < radio_target)||(positions[i].y > (GetScreenHeight() - radio_target)))
         {
             deltas[i].y *=(-1);
             bounce = true;
