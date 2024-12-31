@@ -30,8 +30,8 @@
 // Module Variables Definition (local)
 //----------------------------------------------------------------------------------
 enum{
-    CURSOR_NORMAL_SIZE = 10,
-    CURSOR_BIG_SIZE = 50,
+    CURSOR_NORMAL_SIZE = 25,
+    CURSOR_BIG_SIZE = 60,
 };
 
 GameEnd finishScreen = 0;
@@ -309,6 +309,14 @@ void UpdateGameplayScreen(void)
 // Gameplay Screen Draw logic
 void DrawGameplayScreen(void)
 {
+    int a = getLevel()%6;
+
+    float scale = ((float)GetScreenWidth())/((float)backgrounds[a].width);
+    Vector2 position ={0,0};
+    DrawTextureEx(backgrounds[a], position, 0.0, scale , WHITE);
+
+
+
 
     DrawText(TextFormat("Points: %02i", points), 10, 40, 40, BLUE);
 
@@ -337,7 +345,11 @@ void DrawGameplayScreen(void)
         
     }
 
-    DrawCircleV(cursorPosition, radioCursor, MAROON);
+    scale = ((float)radioCursor * 2)/((float)aim.width);
+    position.x = cursorPosition.x - (aim.width*scale)/2;
+    position.y = cursorPosition.y - (aim.height*scale)/2;
+    DrawTextureEx(aim, position, 0.0, scale , WHITE);
+    //DrawCircleV(cursorPosition, radioCursor, MAROON);
 }
 
 // Gameplay Screen Unload logic

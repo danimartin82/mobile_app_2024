@@ -34,6 +34,9 @@ Texture2D redBall;
 Texture2D bonusTx;
 Image CoinSprite;
 
+Texture2D backgrounds[6];
+Texture2D aim;
+
 //----------------------------------------------------------------------------------
 // Local Variables Definition (local to this module)
 //----------------------------------------------------------------------------------
@@ -87,6 +90,15 @@ int main(void)
     bonusTx = LoadTexture("../resources/bonus.png");
     CoinSprite = LoadImage("../resources/MonedaD.png");
 
+    backgrounds[0] = LoadTexture("../resources/9285000.png");
+    backgrounds[1] = LoadTexture("../resources/9259344.png");
+    backgrounds[2] = LoadTexture("../resources/9259348.png");
+    backgrounds[3] = LoadTexture("../resources/9285000.png");
+    backgrounds[4] = LoadTexture("../resources/9259344.png");
+    backgrounds[5] = LoadTexture("../resources/9259348.png");
+
+    aim  = LoadTexture("../resources/aim.png");
+
     SetMusicVolume(music, 1.0f);
     PlayMusicStream(music);
 
@@ -130,6 +142,15 @@ int main(void)
     UnloadTexture(redBall);
     UnloadTexture(bonusTx);
     UnloadImage(CoinSprite);
+
+    UnloadTexture(backgrounds[0]);
+    UnloadTexture(backgrounds[1]);
+    UnloadTexture(backgrounds[2]);
+    UnloadTexture(backgrounds[3]);
+    UnloadTexture(backgrounds[4]);
+    UnloadTexture(backgrounds[5]);
+    UnloadTexture(aim);
+
 
     CloseAudioDevice();     // Close audio context
 
