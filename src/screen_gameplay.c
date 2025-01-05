@@ -125,15 +125,15 @@ void InitGameplayScreen(void)
             points_per_target = 10;
             radio_target = 50;
             required_points = 50;
-            balls_per_game = 4;
+            balls_per_game = 5;
         }
         break;
         case 2:
         {
-            points_per_target = 15;
+            points_per_target = 10;
             radio_target = 40;
             required_points = 80;
-            balls_per_game = 5;
+            balls_per_game = 4;
             bonusAlive = true;
         }
         break;
@@ -142,14 +142,14 @@ void InitGameplayScreen(void)
             points_per_target = 20;
             radio_target = 30;
             required_points = 100;
-            balls_per_game = 6;
+            balls_per_game = 5;
         }
         break;
         case 4:
         {
-            points_per_target = 25;
+            points_per_target = 20;
             radio_target = 20;
-            required_points = 120;
+            required_points = 140;
             balls_per_game = 7;
         }
         break;
@@ -164,7 +164,7 @@ void InitGameplayScreen(void)
         break;
         case 6:
         {
-            points_per_target = 36;
+            points_per_target = 35;
             radio_target = 20;
             required_points = 160;
             balls_per_game = 9;
@@ -326,7 +326,6 @@ void DrawGameplayScreen(void)
         if(alive[i] == true)
         {
           
-          // DrawCircleV(positions[i], radio_target, DARKGRAY);
             float scale = ((float)radio_target * 2)/((float)redBall.width);
             Vector2 position ={positions[i].x - (redBall.width*scale)/2, positions[i].y - (redBall.height*scale)/2};
             DrawTextureEx(redBall, position, 0.0, scale , WHITE);
@@ -336,20 +335,22 @@ void DrawGameplayScreen(void)
 
     if (bonusAlive == true)
     {
-       // DrawCircleV(bonusPosition, radioBonus, GOLD);
-        //float scale = ((float)radioBonus * 2)/((float)bonusTx.width);
-        //Vector2 position ={bonusPosition.x - (bonusTx.width*scale)/2, bonusPosition.y - (bonusTx.height*scale)/2};
-        //DrawTextureEx(bonusTx, position, 0.0, scale , WHITE);
         Vector2 position ={bonusPosition.x - (frameRec.width)/2, bonusPosition.y - (frameRec.height)/2};
         DrawTextureRec(CoinSpriteTx, frameRec, position, WHITE);
         
     }
+    if ( radioCursor == CURSOR_BIG_SIZE)
+    {
+        int t = bonusMaxTime - (GetTime() - bonusStartTime) + 1;
+        DrawText(TextFormat("%i", t), cursorPosition.x - 10, cursorPosition.y - 100 , 40, BLUE);
+    }
+
 
     scale = ((float)radioCursor * 2)/((float)aim.width);
     position.x = cursorPosition.x - (aim.width*scale)/2;
     position.y = cursorPosition.y - (aim.height*scale)/2;
     DrawTextureEx(aim, position, 0.0, scale , WHITE);
-    //DrawCircleV(cursorPosition, radioCursor, MAROON);
+
 }
 
 // Gameplay Screen Unload logic
