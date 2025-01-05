@@ -69,8 +69,17 @@ static void UpdateDrawFrame(void);          // Update and draw one frame
 int main(void)
 {
     int display = GetCurrentMonitor();
-    screenWidth = GetMonitorWidth(display);
-    screenHeight = GetMonitorHeight(display);
+
+    #if PLATFORM_ANDROID
+        screenWidth = 0;
+        screenHeight =0;
+    #elif PLATFORM_DESKTOP
+	    screenWidth = GetMonitorWidth(display);
+        screenHeight = GetMonitorHeight(display);
+    #endif
+
+
+  
 
 
     // Initialization
