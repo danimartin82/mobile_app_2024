@@ -48,6 +48,8 @@ extern Texture2D bonusTx;
 extern Image CoinSprite;
 extern Texture2D backgrounds[6];
 extern Texture2D aim;
+extern Texture2D bricks;
+extern Image explosionSprite;
 
 #ifdef __cplusplus
 extern "C" {            // Prevents name mangling of functions

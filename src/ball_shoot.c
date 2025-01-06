@@ -32,7 +32,9 @@ Sound gameOver = { 0 };
 Sound bonus;
 Texture2D redBall;
 Texture2D bonusTx;
+Texture2D bricks;
 Image CoinSprite;
+Image explosionSprite;
 
 Texture2D backgrounds[6];
 Texture2D aim;
@@ -106,6 +108,8 @@ int main(void)
     backgrounds[4] = LoadTexture("../resources/9259344.png");
     backgrounds[5] = LoadTexture("../resources/9259348.png");
 
+    bricks = LoadTexture("../resources/bricks.png");
+    explosionSprite = LoadImage("../resources/explosion.png");
     aim  = LoadTexture("../resources/aim.png");
 
     SetMusicVolume(music, 1.0f);
@@ -159,7 +163,8 @@ int main(void)
     UnloadTexture(backgrounds[4]);
     UnloadTexture(backgrounds[5]);
     UnloadTexture(aim);
-
+    UnloadTexture(bricks);
+    UnloadImage(explosionSprite);
 
     CloseAudioDevice();     // Close audio context
 

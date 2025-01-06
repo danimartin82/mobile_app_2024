@@ -34,6 +34,12 @@ enum{
     CURSOR_BIG_SIZE = 60,
 };
 
+
+#define NUMBER_GRID_X       40U
+#define NUMBER_GRID_Y       22U
+#define MAX_NUM_EXPLOSIONS  10U
+
+
 GameEnd finishScreen = 0;
 #define MAX_TARGETS_ON_SCREEN 10
 Vector2 deltas[MAX_TARGETS_ON_SCREEN];
@@ -61,12 +67,55 @@ Vector2 bonusPosition;
 Vector2 deltaBonus;
 int radioBonus = 20;
 Texture2D CoinSpriteTx;
+Texture2D explosionSpriteTx;
 
-int currentFrame = 0;
-int framesCounter = 0;
-int framesSpeed = 8;
-Rectangle frameRec;
+static int framesCounter = 0;
 
+int bonusCurrentFrame = 0;
+int bonusFramesCounter = 0;
+int bonnusFramesSpeed = 8;
+Rectangle bonusFrameRec;
+
+int explosionCurrentFrame = 0;
+int explosionFramesCounter = 0;
+int explosionFramesSpeed = 8;
+bool activesExplosion[MAX_NUM_EXPLOSIONS] =  {0};
+Rectangle explosionFrameRec[MAX_NUM_EXPLOSIONS];
+int activesExplosionsFrame[MAX_NUM_EXPLOSIONS] = {0};
+Vector2 activesExplosionsPosition[MAX_NUM_EXPLOSIONS] = {0};
+
+
+
+int size_grid_x = 0;
+int size_grid_y = 0;
+float  bricks_scale = 0;
+
+
+bool brickMap[NUMBER_GRID_Y][NUMBER_GRID_X] = 
+    {
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+    };
  
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
@@ -100,23 +149,8 @@ void InitGameplayScreen(void)
     user_failed = false;
     points = 0;
     radioCursor = CURSOR_NORMAL_SIZE;
-
-    float scale = ((float)radioBonus*2)/(((float)CoinSprite.width)/5);
-    ImageResize(&CoinSprite, (CoinSprite.width*scale), (CoinSprite.height*scale)); 
-    CoinSpriteTx = LoadTextureFromImage(CoinSprite); 
-
-    frameRec.x= 0.0f;
-    frameRec.y= 0.0f;
-    frameRec.width = (float)CoinSpriteTx.width/5;
-    frameRec.height = (float)CoinSpriteTx.height;
-
-    cursorPosition.x = (float)GetScreenWidth()/2;
-    cursorPosition.y = (float)GetScreenHeight()/2;
-
-    SetSoundVolume(fxCoin, 0.3);
-    SetSoundVolume(balloonPop, 0.1);
-    SetSoundPitch(balloonPop, (getLevel()%7)/4);   
-
+    
+    
     switch (getLevel()%7)
     {
         default:
@@ -172,6 +206,43 @@ void InitGameplayScreen(void)
         break;                
     }
 
+    // Bonus animation
+    float scale = ((float)radioBonus*2)/(((float)CoinSprite.width)/5);
+    ImageResize(&CoinSprite, (CoinSprite.width*scale), (CoinSprite.height*scale)); 
+    CoinSpriteTx = LoadTextureFromImage(CoinSprite); 
+
+    bonusFrameRec.x= 0.0f;
+    bonusFrameRec.y= 0.0f;
+    bonusFrameRec.width = (float)CoinSpriteTx.width/5;
+    bonusFrameRec.height = (float)CoinSpriteTx.height;
+
+    // Explosion animation
+    scale = ((float)radio_target*2)/(((float)explosionSprite.width)/6);
+    ImageResize(&explosionSprite, (explosionSprite.width*scale), (explosionSprite.height*scale)); 
+    explosionSpriteTx = LoadTextureFromImage(explosionSprite); 
+
+    for (int i = 0; i < MAX_NUM_EXPLOSIONS; i++)
+    {
+        explosionFrameRec[i].x= 0.0f;
+        explosionFrameRec[i].y= 0.0f;
+        explosionFrameRec[i].width = (float)explosionSpriteTx.width/6;
+        explosionFrameRec[i].height = (float)explosionSpriteTx.height;
+    }
+    // Initial cursor position
+    cursorPosition.x = (float)GetScreenWidth()/2;
+    cursorPosition.y = (float)GetScreenHeight()/2;
+    
+    // audio
+    SetSoundVolume(fxCoin, 0.3);
+    SetSoundVolume(balloonPop, 0.1);
+    SetSoundPitch(balloonPop, (getLevel()%7)/4);   
+
+    // Grid for bricks
+    size_grid_x = (int)(GetScreenWidth()/NUMBER_GRID_X);
+    size_grid_y = (int)(GetScreenHeight()/NUMBER_GRID_Y);
+    bricks_scale = bricks.width / size_grid_x;
+   
+    
     for (int i = 0; i < MAX_TARGETS_ON_SCREEN; i++)
     {
         if (i < balls_per_game) alive[i] = true;
@@ -187,16 +258,31 @@ void InitGameplayScreen(void)
 void UpdateGameplayScreen(void)
 {
     framesCounter++;
-
-    if (framesCounter >= (60/framesSpeed))
+    if(framesCounter%2 == 0)
     {
-        framesCounter = 0;
-        currentFrame++;
+        bonusCurrentFrame++;
+        if (bonusCurrentFrame > 5) bonusCurrentFrame = 0;
+        bonusFrameRec.x = (float)bonusCurrentFrame*(float)CoinSprite.width/5;
 
-        if (currentFrame > 5) currentFrame = 0;
 
-        frameRec.x = (float)currentFrame*(float)CoinSprite.width/5;
+        for (int i = 0; i < MAX_NUM_EXPLOSIONS; i++)
+        {
+            if(activesExplosion[i] == true)
+            {
+                activesExplosionsFrame[i]++;
+                if (activesExplosionsFrame[i] > 6)
+                {
+                    activesExplosionsFrame[i] = 0;
+                    activesExplosion[i] = false;
+                }   
+                explosionFrameRec[i].x = (float)activesExplosionsFrame[i]*(float)explosionSprite.width/6;
+            }
+        }
+
     }
+
+
+    
 
 
 
@@ -254,6 +340,19 @@ void UpdateGameplayScreen(void)
                 points += points_per_target;
                 hit = true;
                 PlaySound(balloonPop);
+
+                for (int i = 0; i < MAX_NUM_EXPLOSIONS; i++)
+                {
+                    if(activesExplosion[i] == false)
+                    {
+                        activesExplosion[i] = true;
+                        activesExplosionsPosition[i].x = cursorPosition.x - radio_target;
+                        activesExplosionsPosition[i].y = cursorPosition.y - radio_target;
+                        break;
+                    }
+                }
+
+
             }
 
         }
@@ -333,10 +432,25 @@ void DrawGameplayScreen(void)
 
     }
 
+     for (int i = 0; i < NUMBER_GRID_Y; i++)
+    {
+        for (int j = 0; j < NUMBER_GRID_X; j++)
+        {
+            if (brickMap[i][j] == true)
+            {
+                Vector2 position ={size_grid_x*(j +0.5), size_grid_y*(i + 0.5)};
+                DrawTextureEx(bricks, position, 0.0, 1/bricks_scale, WHITE);
+            }
+
+        }
+
+    }
+
+
     if (bonusAlive == true)
     {
-        Vector2 position ={bonusPosition.x - (frameRec.width)/2, bonusPosition.y - (frameRec.height)/2};
-        DrawTextureRec(CoinSpriteTx, frameRec, position, WHITE);
+        Vector2 position ={bonusPosition.x - (bonusFrameRec.width)/2, bonusPosition.y - (bonusFrameRec.height)/2};
+        DrawTextureRec(CoinSpriteTx, bonusFrameRec, position, WHITE);
         
     }
     if ( radioCursor == CURSOR_BIG_SIZE)
@@ -350,6 +464,14 @@ void DrawGameplayScreen(void)
     position.x = cursorPosition.x - (aim.width*scale)/2;
     position.y = cursorPosition.y - (aim.height*scale)/2;
     DrawTextureEx(aim, position, 0.0, scale , WHITE);
+
+     for (int i = 0; i < MAX_NUM_EXPLOSIONS; i++)
+    {
+        if(activesExplosion[i] == true)
+        {
+             DrawTextureRec(explosionSpriteTx, explosionFrameRec[i], activesExplosionsPosition[i], WHITE);
+        }
+    }
 
 }
 
