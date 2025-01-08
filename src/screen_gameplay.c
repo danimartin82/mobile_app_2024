@@ -118,7 +118,66 @@ bool brickMap[NUMBER_GRID_Y][NUMBER_GRID_X] =
     };
  
 //----------------------------------------------------------------------------------
-// Gameplay Screen Functions Definition
+// 
+//----------------------------------------------------------------------------------
+bool check_bounce_balls(Vector2 *position, int radio, int level, Vector2 *deltas)
+{   
+    bool bounce = false;
+
+    // Check bounce with 4 walls of the screen 
+    if((position->x < radio)||(position->x > (GetScreenWidth() - radio)))
+    {
+        deltas->x *=(-1);
+        bounce = true;
+    }
+    if((position->y < radio)||(position->y > (GetScreenHeight() - radio)))
+    {
+        deltas->y *=(-1);
+        bounce = true;
+    }
+
+
+
+    for (int i = 0; i < NUMBER_GRID_Y; i++)
+    {
+        for (int j = 0; j < NUMBER_GRID_X; j++)
+        {
+            if (brickMap[i][j] == true)
+            {
+
+                Rectangle rec = {size_grid_x*j,  size_grid_y*i, size_grid_x, size_grid_y};
+                if (CheckCollisionCircleRec(*position, radio, rec))
+                {
+
+                    Rectangle rec_1 ={size_grid_x*j ,  size_grid_y*i, size_grid_x, 1};
+                    Rectangle rec_2 ={size_grid_x*j ,  size_grid_y*(i+1), size_grid_x, 1};
+
+                    if (CheckCollisionCircleRec(*position, radio, rec_1) || CheckCollisionCircleRec(*position, radio, rec_2) )
+                    {
+                        deltas->y *=(-1);
+                        position->y +=deltas->y;
+                    }
+                    else
+                    {
+                        deltas->x *=(-1);
+                         position->x +=deltas->x;
+                    }
+                   
+                   
+                    bounce = true;
+                }
+
+            }
+
+        }
+
+    }
+
+    return bounce;
+}
+
+//----------------------------------------------------------------------------------
+// 
 //----------------------------------------------------------------------------------
 void recalculate_deltas(int max_speed)
 {
@@ -142,7 +201,10 @@ void recalculate_deltas(int max_speed)
     bonusPosition.x = GetRandomValue(0, GetScreenWidth());
     bonusPosition.y = GetRandomValue(0, GetScreenHeight()); 
 }
+
+//----------------------------------------------------------------------------------
 // Gameplay Screen Initialization logic
+//----------------------------------------------------------------------------------
 void InitGameplayScreen(void)
 {
     finishScreen = 0;
@@ -227,6 +289,8 @@ void InitGameplayScreen(void)
         explosionFrameRec[i].y= 0.0f;
         explosionFrameRec[i].width = (float)explosionSpriteTx.width/6;
         explosionFrameRec[i].height = (float)explosionSpriteTx.height;
+
+        activesExplosion[i] = false;
     }
     // Initial cursor position
     cursorPosition.x = (float)GetScreenWidth()/2;
@@ -254,17 +318,21 @@ void InitGameplayScreen(void)
 
 }
 
+
+//----------------------------------------------------------------------------------
 // Gameplay Screen Update logic
+//----------------------------------------------------------------------------------
 void UpdateGameplayScreen(void)
 {
     framesCounter++;
     if(framesCounter%2 == 0)
-    {
+    {   
+        // animation of bonus
         bonusCurrentFrame++;
         if (bonusCurrentFrame > 5) bonusCurrentFrame = 0;
         bonusFrameRec.x = (float)bonusCurrentFrame*(float)CoinSprite.width/5;
 
-
+        // animation of explosions
         for (int i = 0; i < MAX_NUM_EXPLOSIONS; i++)
         {
             if(activesExplosion[i] == true)
@@ -282,10 +350,7 @@ void UpdateGameplayScreen(void)
     }
 
 
-    
-
-
-
+    // Check cursor size after bonus
     if (radioCursor == CURSOR_BIG_SIZE)
     {  
         if(GetTime() >= (bonusMaxTime + bonusStartTime))
@@ -293,40 +358,27 @@ void UpdateGameplayScreen(void)
             radioCursor = CURSOR_NORMAL_SIZE;
         }
     }
+
+    // check if balls bounce  
     for (int i = 0; i < balls_per_game; i++)  
     {
         positions[i].x += deltas[i].x;
         positions[i].y +=  deltas[i].y;
-        bool bounce = false;
-        if((positions[i].x < radio_target)||(positions[i].x > (GetScreenWidth() - radio_target)))
-        {
-            deltas[i].x *=(-1);
-            bounce = true;
-        }
-        if((positions[i].y < radio_target)||(positions[i].y > (GetScreenHeight() - radio_target)))
-        {
-            deltas[i].y *=(-1);
-            bounce = true;
-        }
-        if(bounce == true)
-        {
-        }
+        bool bounce = check_bounce_balls(&positions[i], radio_target, getLevel(), &deltas[i]);
+
     }
 
+    // bounce of bonus
     if (bonusAlive == true)
     {
         bonusPosition.x +=  deltaBonus.x;
         bonusPosition.y +=  deltaBonus.y;
-        if((bonusPosition.x < radioBonus/2)||(bonusPosition.x > (GetScreenWidth() - radioBonus/2)))
-        {
-            deltaBonus.x *=(-1);
-        }
-        if((bonusPosition.y < radioBonus/2)||(bonusPosition.y > (GetScreenHeight() - radioBonus/2)))
-        {
-            deltaBonus.y *=(-1);
-        }
+
+        (void)check_bounce_balls(&bonusPosition, radioBonus, getLevel(), &deltaBonus);
 
     }
+
+    // cursor
     cursorPosition = GetMousePosition();
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
@@ -338,8 +390,8 @@ void UpdateGameplayScreen(void)
             {
                 alive[i] = false;
                 points += points_per_target;
-                hit = true;
                 PlaySound(balloonPop);
+                hit = true;
 
                 for (int i = 0; i < MAX_NUM_EXPLOSIONS; i++)
                 {
@@ -351,15 +403,15 @@ void UpdateGameplayScreen(void)
                         break;
                     }
                 }
-
-
             }
 
+
         }
-        if(hit == false)
+        if (hit == false)
         {
             user_failed = true;
         }
+
         if (bonusAlive == true)
         {
             if(CheckCollisionCircles(cursorPosition, radioCursor, bonusPosition, radioBonus))
@@ -405,7 +457,9 @@ void UpdateGameplayScreen(void)
     }
 }
 
+//----------------------------------------------------------------------------------
 // Gameplay Screen Draw logic
+//----------------------------------------------------------------------------------
 void DrawGameplayScreen(void)
 {
     int a = getLevel()%6;
@@ -432,14 +486,15 @@ void DrawGameplayScreen(void)
 
     }
 
-     for (int i = 0; i < NUMBER_GRID_Y; i++)
+    for (int i = 0; i < NUMBER_GRID_Y; i++)
     {
         for (int j = 0; j < NUMBER_GRID_X; j++)
         {
             if (brickMap[i][j] == true)
             {
-                Vector2 position ={size_grid_x*(j +0.5), size_grid_y*(i + 0.5)};
+                Vector2 position ={size_grid_x*j, size_grid_y*i};
                 DrawTextureEx(bricks, position, 0.0, 1/bricks_scale, WHITE);
+
             }
 
         }
@@ -475,13 +530,17 @@ void DrawGameplayScreen(void)
 
 }
 
+//----------------------------------------------------------------------------------
 // Gameplay Screen Unload logic
+//----------------------------------------------------------------------------------
 void UnloadGameplayScreen(void)
 {
     // TODO: Unload GAMEPLAY screen variables here!
 }
 
+//----------------------------------------------------------------------------------
 // Gameplay Screen should finish?
+//----------------------------------------------------------------------------------
 GameEnd FinishGameplayScreen(void)
 {
     return finishScreen;
