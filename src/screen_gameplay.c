@@ -41,7 +41,7 @@ enum{
 #define MAX_NUM_EXPLOSIONS  10U
 
 
-GameEnd finishScreen = 0;
+GameEnd finishScreen = GAME_END_NONE;
 #define MAX_TARGETS_ON_SCREEN 10
 Vector2 deltas[MAX_TARGETS_ON_SCREEN];
 Vector2 positions[MAX_TARGETS_ON_SCREEN];
@@ -113,12 +113,12 @@ bool check_bounce_balls(Vector2 *position, int radio, int level, Vector2 *deltas
     // Check bounce with 4 walls of the screen 
     if((position->x < radio)||(position->x > (GetScreenWidth() - radio)))
     {
-        deltas->x *=(-1);
+        deltas->x *=(-1.0);
         bounce = true;
     }
     if((position->y < radio)||(position->y > (GetScreenHeight() - radio)))
     {
-        deltas->y *=(-1);
+        deltas->y *=(-1.0);
         bounce = true;
     }
 
@@ -130,25 +130,43 @@ bool check_bounce_balls(Vector2 *position, int radio, int level, Vector2 *deltas
         {
             if (brickMap[level][i][j] == true)
             {
-
                 Rectangle rec = {size_grid_x*j,  size_grid_y*i, size_grid_x, size_grid_y};
                 if (CheckCollisionCircleRec(*position, radio, rec))
                 {
-
-                    Rectangle rec_1 ={size_grid_x*j ,  size_grid_y*i, size_grid_x, 1};
-                    Rectangle rec_2 ={size_grid_x*j ,  size_grid_y*(i+1), size_grid_x, 1};
-
-                    if (CheckCollisionCircleRec(*position, radio, rec_1) || CheckCollisionCircleRec(*position, radio, rec_2) )
+                    if (deltas->x == 0)
                     {
-                        deltas->y *=(-1);
-                        position->y +=deltas->y;
+                        deltas->y *=(-1.0);
+                    }
+                    else if (deltas->y == 0)
+                    {
+                        deltas->x *=(-1.0);
                     }
                     else
                     {
-                        deltas->x *=(-1);
-                         position->x +=deltas->x;
+                        /*  p1 ---- p2
+                            |       |
+                            p3 -----p4
+                        */
+                        Vector2 p1 = {size_grid_x*j+2,  size_grid_y*i+2};
+                        Vector2 p2 = {size_grid_x*(j+1)-2,  size_grid_y*i+2};
+                        Vector2 p3 = {size_grid_x*j+2,  size_grid_y*(i+1)-2};
+                        Vector2 p4 = {size_grid_x*(j+1)-2,  size_grid_y*(i+1)-2};
+                        if (CheckCollisionCircleLine(*position, radio,p1,p2) || CheckCollisionCircleLine(*position, radio,p3,p4))
+                        {
+                            deltas->y *=(-1.0);
+                        }
+                        else if(CheckCollisionCircleLine(*position, radio,p1,p3) || CheckCollisionCircleLine(*position, radio,p2,p4))
+                        {
+                            deltas->x *=(-1.0);
+                        }
+                        else
+                        {
+                            deltas->y *=(-1.0);
+                            deltas->x *=(-1.0);
+                        }
+
                     }
-                   
+                       
                    
                     bounce = true;
                 }
@@ -193,7 +211,7 @@ void recalculate_deltas(int max_speed)
 //----------------------------------------------------------------------------------
 void InitGameplayScreen(void)
 {
-    finishScreen = 0;
+    finishScreen = GAME_END_NONE;
     user_failed = false;
     points = 0;
     radioCursor = CURSOR_NORMAL_SIZE;
@@ -449,71 +467,72 @@ void UpdateGameplayScreen(void)
 //----------------------------------------------------------------------------------
 void DrawGameplayScreen(void)
 {
-    int a = getLevel()%6;
-
-    float scale = ((float)GetScreenWidth())/((float)backgrounds[a].width);
-    Vector2 position ={0,0};
-    DrawTextureEx(backgrounds[a], position, 0.0, scale , WHITE);
-
-
-
-
-    DrawText(TextFormat("Points: %02i", points), 10, 40, 40, BLUE);
-
-
-    for (int i = 0; i < balls_per_game; i++)
+    if (finishScreen == GAME_END_NONE)
     {
-        if(alive[i] == true)
-        {
-          
-            float scale = ((float)radio_target * 2)/((float)redBall.width);
-            Vector2 position ={positions[i].x - (redBall.width*scale)/2, positions[i].y - (redBall.height*scale)/2};
-            DrawTextureEx(redBall, position, 0.0, scale , WHITE);
-        }
+        int a = getLevel()%6;
 
-    }
-    int level = getLevel()%7;
-    for (int i = 0; i < NUMBER_GRID_Y; i++)
-    {
-        for (int j = 0; j < NUMBER_GRID_X; j++)
+        float scale = ((float)GetScreenWidth())/((float)backgrounds[a].width);
+        Vector2 position ={0,0};
+        DrawTextureEx(backgrounds[a], position, 0.0, scale , WHITE);
+
+        DrawText(TextFormat("Points: %02i", points), 10, 40, 40, BLUE);
+
+
+        for (int i = 0; i < balls_per_game; i++)
         {
-            if (brickMap[level][i][j] == true)
+            if(alive[i] == true)
             {
-                Vector2 position ={size_grid_x*j, size_grid_y*i};
-                DrawTextureEx(bricks, position, 0.0, 1/bricks_scale, WHITE);
+            
+                float scale = ((float)radio_target * 2)/((float)redBall.width);
+                Vector2 position ={positions[i].x - (redBall.width*scale)/2, positions[i].y - (redBall.height*scale)/2};
+                DrawTextureEx(redBall, position, 0.0, scale , WHITE);
+            }
+
+        }
+        int level = getLevel()%7;
+        for (int i = 0; i < NUMBER_GRID_Y; i++)
+        {
+            for (int j = 0; j < NUMBER_GRID_X; j++)
+            {
+                if (brickMap[level][i][j] == true)
+                {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+                    Vector2 position ={size_grid_x*j, size_grid_y*i};
+                    DrawTextureEx(bricks, position, 0.0, 1/bricks_scale, WHITE);
+
+                }
 
             }
 
         }
 
-    }
 
-
-    if (bonusAlive == true)
-    {
-        Vector2 position ={bonusPosition.x - (bonusFrameRec.width)/2, bonusPosition.y - (bonusFrameRec.height)/2};
-        DrawTextureRec(CoinSpriteTx, bonusFrameRec, position, WHITE);
-        
-    }
-    if ( radioCursor == CURSOR_BIG_SIZE)
-    {
-        int t = bonusMaxTime - (GetTime() - bonusStartTime) + 1;
-        DrawText(TextFormat("%i", t), cursorPosition.x - 10, cursorPosition.y - 100 , 40, BLUE);
-    }
-
-
-    scale = ((float)radioCursor * 2)/((float)aim.width);
-    position.x = cursorPosition.x - (aim.width*scale)/2;
-    position.y = cursorPosition.y - (aim.height*scale)/2;
-    DrawTextureEx(aim, position, 0.0, scale , WHITE);
-
-     for (int i = 0; i < MAX_NUM_EXPLOSIONS; i++)
-    {
-        if(activesExplosion[i] == true)
+        if (bonusAlive == true)
         {
-             DrawTextureRec(explosionSpriteTx, explosionFrameRec[i], activesExplosionsPosition[i], WHITE);
+            Vector2 position ={bonusPosition.x - (bonusFrameRec.width)/2, bonusPosition.y - (bonusFrameRec.height)/2};
+            DrawTextureRec(CoinSpriteTx, bonusFrameRec, position, WHITE);
+            
+        }
+        if ( radioCursor == CURSOR_BIG_SIZE)
+        {
+            int t = bonusMaxTime - (GetTime() - bonusStartTime) + 1;
+            DrawText(TextFormat("%i", t), cursorPosition.x - 10, cursorPosition.y - 100 , 40, BLUE);
+        }
+
+
+        scale = ((float)radioCursor * 2)/((float)aim.width);
+        position.x = cursorPosition.x - (aim.width*scale)/2;
+        position.y = cursorPosition.y - (aim.height*scale)/2;
+        DrawTextureEx(aim, position, 0.0, scale , WHITE);
+
+        for (int i = 0; i < MAX_NUM_EXPLOSIONS; i++)
+        {
+            if(activesExplosion[i] == true)
+            {
+                DrawTextureRec(explosionSpriteTx, explosionFrameRec[i], activesExplosionsPosition[i], WHITE);
+            }
         }
     }
+ 
 
 }
 
