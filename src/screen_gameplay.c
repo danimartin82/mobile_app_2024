@@ -136,10 +136,14 @@ bool check_bounce_balls(Vector2 *position, int radio, int level, Vector2 *deltas
                     if (deltas->x == 0)
                     {
                         deltas->y *=(-1.0);
+                        int signo = (deltas->y)/abs(deltas->y);
+                        position->y += signo*radio;
                     }
                     else if (deltas->y == 0)
                     {
                         deltas->x *=(-1.0);
+                        int signo = (deltas->x)/abs(deltas->x);
+                        position->x += signo*radio;
                     }
                     else
                     {
@@ -147,23 +151,35 @@ bool check_bounce_balls(Vector2 *position, int radio, int level, Vector2 *deltas
                             |       |
                             p3 -----p4
                         */
-                        Vector2 p1 = {size_grid_x*j+2,  size_grid_y*i+2};
-                        Vector2 p2 = {size_grid_x*(j+1)-2,  size_grid_y*i+2};
-                        Vector2 p3 = {size_grid_x*j+2,  size_grid_y*(i+1)-2};
-                        Vector2 p4 = {size_grid_x*(j+1)-2,  size_grid_y*(i+1)-2};
-                        if (CheckCollisionCircleLine(*position, radio,p1,p2) || CheckCollisionCircleLine(*position, radio,p3,p4))
+
+                        Vector2 p1 = {size_grid_x*j,  size_grid_y*i};
+                        Vector2 p2 = {size_grid_x*(j+1),  size_grid_y*i};
+                        Vector2 p3 = {size_grid_x*j,  size_grid_y*(i+1)};
+                        Vector2 p4 = {size_grid_x*(j+1),  size_grid_y*(i+1)};
+
+                        Vector2 startPos1 ={position->x,position->y-radio};
+                        Vector2 startPos2 ={position->x,position->y+radio};
+                        //Vector2 startPos3 ={position->x-radio,position->y};
+                        //Vector2 startPos4 ={position->x + radio,position->y};
+                        Vector2 collisionPoint;
+
+                        if (CheckCollisionLines(startPos1,startPos2,p1,p2, &collisionPoint) || CheckCollisionLines(startPos1,startPos2,p3,p4,&collisionPoint))
                         {
                             deltas->y *=(-1.0);
+                            int signo = (deltas->y)/abs(deltas->y);
+                            position->y += signo*radio;
                         }
-                        else if(CheckCollisionCircleLine(*position, radio,p1,p3) || CheckCollisionCircleLine(*position, radio,p2,p4))
+                        else// if (CheckCollisionLines(startPos3,startPos4,p1,p3, &collisionPoint) || CheckCollisionLines(startPos3,startPos4,p2,p4,&collisionPoint))
                         {
                             deltas->x *=(-1.0);
+                            int signo = (deltas->x)/abs(deltas->x);
+                            position->x += signo*radio;
                         }
-                        else
+                       /* else
                         {
                             deltas->y *=(-1.0);
                             deltas->x *=(-1.0);
-                        }
+                        }*/
 
                     }
                        
